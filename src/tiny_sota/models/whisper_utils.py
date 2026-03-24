@@ -53,9 +53,11 @@ def log_mel_spectrogram(audio, n_mels, device, padding=0):
     if padding > 0:
         audio = F.pad(audio, (0, padding))
     window = torch.hann_window(N_FFT).to(audio.device)
-    stft = torch.stft(
-            audio, N_FFT, HOP_LENGTH, 
-            window=window, return_complex=True)
+    import warnings 
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=UserWarning)
+        stft = torch.stft(audio, N_FFT, HOP_LENGTH, 
+                window=window, return_complex=True)
     magnitudes = stft[..., :-1].abs() ** 2
     filters = mel_filters(audio.device, n_mels)
     mel_spec = filters @ magnitudes
