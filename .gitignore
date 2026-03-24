@@ -3,3 +3,4 @@ dist
 datasets
 .DS_Store
 *.ogg
+.vscode
