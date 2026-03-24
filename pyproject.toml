@@ -25,17 +25,19 @@ license-files = ["LICEN[CS]E*"]
 dependencies = [
   'torch',
   'torchvision',
+  'torchaudio',
   'safetensors',
   'huggingface_hub[cli]',
   'tokenizers',
-  'misaki'
+  'tiktoken',
+  'requests'
 ]
 
 [project.optional-dependencies]
 # pip install tiny-sota[tts]
-tts = ["spacy", "num2words", "phonemizer-fork", "espeakng-loader"]
+tts = ["soundfile", "misaki", "spacy", "num2words", "phonemizer-fork", "espeakng-loader"]
 
 [project.urls]
-Homepage = "https://github.com/Marvin-desmond/tiny-sota"
-Issues = "https://github.com/Marvin-desmond/tiny-sota/issues"
-repository = "https://github.com/Marvin-desmond/tiny-sota"
+Homepage = "https://github.com/marvinmboya/tiny-sota"
+Issues = "https://github.com/marvinmboya/tiny-sota/issues"
+repository = "https://github.com/marvinmboya/tiny-sota"
