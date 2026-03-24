@@ -119,9 +119,8 @@ def set_g2p(lang_code: str):
     _codes = {'e':'es','f':'fr-fr','h':'hi','i':'it','p':'pt-br'}
     g2p = None
     if lang_code in 'ab':
-        from misaki import en, espeak
-        fallback = espeak.EspeakFallback(british=lang_code=='b')
-        g2p = en.G2P(trf=False, british=lang_code=='b', fallback=fallback, unk='')
+        from misaki import en
+        g2p = en.G2P(trf=False, british=lang_code=='b', fallback=None, unk='')
     elif lang_code == 'j':
         install("misaki[ja]")
         from misaki import ja
