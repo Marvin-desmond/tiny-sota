@@ -130,6 +130,10 @@ def set_g2p(lang_code: str):
         from misaki import zh
         g2p = zh.ZHG2P(version=None, en_callable=None)
     else:
+        import shutil
+        if shutil.which('espeak-ng') is None:
+            raise SystemExit("need espeak-ng downloaded in system!")
+        from misaki import espeak
         language = _codes[lang_code]
         g2p = espeak.EspeakG2P(language=language)
         lang_code = language
