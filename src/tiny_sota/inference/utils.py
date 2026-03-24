@@ -1,6 +1,5 @@
 import torch 
 import re, subprocess, sys 
-from misaki import en, espeak
 
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", package])
@@ -120,6 +119,7 @@ def set_g2p(lang_code: str):
     _codes = {'e':'es','f':'fr-fr','h':'hi','i':'it','p':'pt-br'}
     g2p = None
     if lang_code in 'ab':
+        from misaki import en, espeak
         fallback = espeak.EspeakFallback(british=lang_code=='b')
         g2p = en.G2P(trf=False, british=lang_code=='b', fallback=fallback, unk='')
     elif lang_code == 'j':
