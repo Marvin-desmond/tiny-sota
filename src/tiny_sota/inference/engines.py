@@ -1,6 +1,4 @@
 import torch 
-import soundfile as sf 
-
 from typing import Optional, Union
 
 from .utils import generate_text_stream, set_g2p, generate_audio
@@ -106,6 +104,7 @@ class TTSEngine():
         self.voice = voice_pack.voice.to(device)
         self.model = model.to(device).eval()
     def __call__(self, text):
+        from soundfile import write 
         for i, audio in enumerate(
             generate_audio(
                 self.model, 
@@ -114,7 +113,7 @@ class TTSEngine():
                 self.voice, 
                 self.lang_code, 
                 speed=1)):
-            sf.write(f'{i}.wav', audio, 24000)
+            write(f'{i}.wav', audio, 24000)
 
 
 
