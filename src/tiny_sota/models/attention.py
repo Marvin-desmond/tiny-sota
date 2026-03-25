@@ -92,7 +92,7 @@ class GQAttention(nn.Module):
         else:
             self.q_norm = self.k_norm = None
 
-    def forward(self, x, mask, cos, sin):
+    def forward(self, x, mask, cos, sin, layer_idx, cache):
         B, seq_len, _ = x.shape
         dtype = x.dtype
         Q, K, V = self.Wq(x), self.Wk(x), self.Wv(x)
@@ -103,6 +103,7 @@ class GQAttention(nn.Module):
         Q = self.q_norm(Q) if self.q_norm else Q
         K = self.k_norm(K) if self.k_norm else K
         Q, K = apply_rotary_pos_emb(Q, K, cos, sin, seq_len, dtype)
+        K, V = cache.update(K, V, layer_idx)
         K = K.repeat_interleave(self.group_size, dim=1)
         V = V.repeat_interleave(self.group_size, dim=1)
         scores = Q @ K.transpose(-1,-2)
