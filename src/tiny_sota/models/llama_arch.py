@@ -16,10 +16,10 @@ class DecoderBlock(nn.Module):
         self.rms2 = RMSNorm(emb_dim, eps=1e-5)
         self.attn = GQAttention(config)
         self.feed_forward = TriFeedForward(config)
-    def forward(self, x, mask, cos, sin):
+    def forward(self, x, mask, cos, sin, layer_idx, cache):
         shortcut = x
         x = self.rms1(x)
-        x = self.attn(x, mask, cos, sin) + shortcut
+        x = self.attn(x, mask, cos, sin, layer_idx, cache) + shortcut
         shortcut = x
         x = self.rms2(x)
         x = self.feed_forward(x) + shortcut
@@ -44,12 +44,17 @@ class Llama3Model(nn.Module):
         self.register_buffer("cos", cos, persistent=False)
         self.register_buffer("sin", sin, persistent=False)
 
-    def forward(self,x):
+    def forward(self, x, cache):
         x = self.embedding(x)
-        seq_len = x.shape[1]
+        seq_len = x.size(1)
+        seq_len = x.size(1)
+        _start = cache.get_seq_length()
+        _end = _start + seq_len
+        cos = self.cos[_start:_end, :].to(x.device)
+        sin = self.sin[_start:_end, :].to(x.device)
         mask = torch.empty(seq_len, seq_len, device=x.device).fill_(-torch.inf).triu_(1)
-        for decoder in self.decoders:
-            x = decoder(x, mask, self.cos, self.sin)
+        for i, decoder in enumerate(self.decoders):
+            x = decoder(x, mask, cos, sin, i, cache)
         x = self.rms_norm(x)
         out = self.linear(x)
         return out
