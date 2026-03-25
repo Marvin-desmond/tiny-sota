@@ -1,6 +1,9 @@
 import torch 
 import re, subprocess, sys 
 
+def colorprint(s):
+    print(f"\n\x1B[0;33m[{s} tokens/second]\x1B[0m")
+
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", package])
 
@@ -22,14 +25,25 @@ def sample_next_token(logits, top_k=None, temperature=1.0):
 def generate_text_stream(
         model, token_ids, max_new_tokens, cache,
         temperature=0.0, top_k=None, eos_token_id=None):
+    import time
+    start = time.perf_counter()
     logits = model(token_ids, cache)[:, -1]
-    for _ in range(max_new_tokens):
+    end = time.perf_counter()
+    colorprint(f"prefill {1/(end - start):.1f}")
+    avg_seconds_per_token = 0.0
+    for index in range(max_new_tokens):
+        start = time.perf_counter()
         next_token_id = sample_next_token(logits, top_k, temperature)
         if (eos_token_id is not None
                    and torch.all(next_token_id == eos_token_id)):
             break
         yield next_token_id
         logits = model(next_token_id, cache)[:, -1]
+        end = time.perf_counter()
+        avg_seconds_per_token = (1/(index + 1)) * (
+            (index * avg_seconds_per_token) + (end - start)
+        )
+    colorprint(f"decode {1/avg_seconds_per_token:.1f}")
 
 # Kokoro 
 def tokens_to_text(tokens):
