@@ -23,7 +23,7 @@ weights, tok = loadQwen3WeightsAndTok(
 transferQwen3Weights(model, config, weights)
 del weights
 
-prompt = "the story of the princess and the lost castle"
+prompt = "What's the best landmarks in Paris?"
 engine = LLMEngine(model, tok, device)
 engine(prompt)
 
