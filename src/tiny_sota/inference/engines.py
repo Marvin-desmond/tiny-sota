@@ -7,6 +7,7 @@ from ..models import ModelConfigs, AudioConfigs
 from ..models.whisper_utils import load_audio, log_mel_spectrogram
 from ..models.whisper_decode import decode_mel_segments
 from ..models.configs import VoicePack
+from .cache import KVCache
 
 class LLMEngine():
     def __init__(self, 
@@ -17,13 +18,15 @@ class LLMEngine():
         self.device = device
         self.eos_token_id = self.tokenizer.eos_token_id
         self.max_new_tokens = 2000
+        self.cache = KVCache(len(self.model.decoders), device)
+
     def __call__(self, prompt):
         max_new_tokens = self.max_new_tokens
         tokens = self.tokenizer.encode(prompt)
         token_ids = torch.tensor(tokens,device=self.device).unsqueeze(0)
         for token in generate_text_stream(
             self.model, token_ids, max_new_tokens, 
-            eos_token_id=self.eos_token_id):
+            self.cache, eos_token_id = self.eos_token_id):
             token_id = token.squeeze(0).tolist()
             print('\x1B[38;5;216;1m' +
                 self.tokenizer.decode(token_id) +
